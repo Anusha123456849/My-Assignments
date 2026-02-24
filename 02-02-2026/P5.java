@@ -1,13 +1,11 @@
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
-
 class InvalidStudentException extends Exception {
     InvalidStudentException(String msg) {
         super(msg);
     }
 }
-
 class Student {
     int id;
     String name;
@@ -43,9 +41,9 @@ class P5{
         Set<Student> validStudents = new HashSet<>();
 
         try (
-                BufferedReader br = new BufferedReader(new FileReader("students.txt"));
-                BufferedWriter valid = new BufferedWriter(new FileWriter("valid.txt"));
-                BufferedWriter invalid = new BufferedWriter(new FileWriter("invalid.txt"))
+                BufferedReader br = new BufferedReader(new FileReader("C:\\Users\\Anusha Kukkadapu\\Downloads\\data.txt"));
+                BufferedWriter valid = new BufferedWriter(new FileWriter("\"C:\\\\Users\\\\Anusha Kukkadapu\\\\Downloads\\\\data.txt\""));
+                BufferedWriter invalid = new BufferedWriter(new FileWriter("\"C:\\\\Users\\\\Anusha Kukkadapu\\\\Downloads\\\\data.txt\""))
         ) {
             String line;
 

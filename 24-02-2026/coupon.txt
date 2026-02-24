@@ -1,0 +1,92 @@
+1.coupons table 
+
+CREATE TABLE coupons (
+    coupon_id INT PRIMARY KEY ,
+    coupon_code VARCHAR(50) UNIQUE NOT NULL,
+    discount_type VARCHAR(20) NOT NULL,
+    discount_value DECIMAL(10,2) NOT NULL,
+    min_order_value DECIMAL(10,2) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    is_global BOOLEAN DEFAULT TRUE,
+    created_at DATETIME NOT NULL,
+    expiry_date DATETIME NOT NULL
+);
+
+2.orders table
+
+CREATE TABLE order1( 
+    order_id INT PRIMARY KEY, 
+    user_id INT NOT NULL REFERENCES users(user_id), 
+    order_amount DECIMAL(10,2) NOT NULL, 
+    discount_amount DECIMAL(10,2), 
+    final_amount DECIMAL(10,2) NOT NULL, 
+    coupon_id INT, created_at DATETIME NOT NULL, 
+    FOREIGN KEY (coupon_id) REFERENCES coupons(coupon_id)
+);
+
+3.coupon_usage table
+
+CREATE TABLE coupon_usage (
+    usage_id INT PRIMARY KEY AUTO_INCREMENT,
+    coupon_id INT NOT NULL,
+    user_id INT NOT NULL REFERENCES users(user_id),
+    order_id INT NOT NULL,
+    used_at DATETIME DEFAULT NOW(),
+    FOREIGN KEY (coupon_id) REFERENCES coupons(coupon_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+
+4.coupen_users table
+
+CREATE TABLE coupon_users (
+    coupon_id INT NOT NULL,
+    user_id INT NOT NULL,
+    PRIMARY KEY (coupon_id, user_id),
+    FOREIGN KEY (coupon_id) REFERENCES coupons(coupon_id)
+);
+5.users table 
+
+CREATE TABLE users (
+    user_id INT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    gmail VARCHAR(100) UNIQUE NOT NULL,
+    city VARCHAR(50) NOT NULL
+);
+
+questions
+
+1.
+select *from coupons where coupon_code='SAVE10';
+
+2.
+select c.coupon_id,count(cu.usage_id)as coupon_usage_count from coupons c left join coupon_usage cu on c.coupon_id=cu.coupon_id group by c.coupon_id;
+
+3.
+select c.coupon_id,count(cu.usage_id)as coupon_usage_count from coupons c left join coupon_usage cu on c.coupon_id=cu.coupon_id group by c.coupon_id having count(cu.usage_id)= (SELECT MAX(cnt) FROM (SELECT COUNT(*) AS cnt FROM coupon_usage Group by coupon_id)t);
+
+4.
+SELECT *FROM coupons WHERE expiry_date BETWEEN GETDATE() AND DATEADD(DAY, 3, GETDATE());
+
+5.
+SELECT c.coupon_id
+FROM coupons c
+WHERE c.coupon_id = 1
+  AND c.is_active = 1
+  AND c.expiry_date > GETDATE()
+  AND 500 >= c.min_order_value   
+  AND NOT EXISTS (
+        SELECT 1
+        FROM coupon_usage where  
+        coupon_id=1
+        AND user_id = 101
+  );
+
+
+
+
+
+
+
+
+
+
