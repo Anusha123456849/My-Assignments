@@ -52,6 +52,24 @@ CREATE TABLE users (
     gmail VARCHAR(100) UNIQUE NOT NULL,
     city VARCHAR(50) NOT NULL
 );
+6.restaraunt table
+
+CREATE TABLE restaurants (
+    restaurant_id INT PRIMARY KEY,
+    restaurant_name VARCHAR(100) NOT NULL,
+    city VARCHAR(50),
+    is_active BIT DEFAULT 1
+);
+
+7.coupon_restaurants table
+
+CREATE TABLE coupon_restaurants (
+    coupon_id INT NOT NULL,
+    restaurant_id INT NOT NULL,
+    PRIMARY KEY (coupon_id, restaurant_id),
+    FOREIGN KEY (coupon_id) REFERENCES coupons(coupon_id),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id)
+);
 
 questions
 
@@ -68,19 +86,36 @@ select c.coupon_id,count(cu.usage_id)as coupon_usage_count from coupons c left j
 SELECT *FROM coupons WHERE expiry_date BETWEEN GETDATE() AND DATEADD(DAY, 3, GETDATE());
 
 5.
-SELECT c.coupon_id
+ SELECT c.coupon_id
 FROM coupons c
 WHERE c.coupon_id = 1
   AND c.is_active = 1
   AND c.expiry_date > GETDATE()
-  AND 500 >= c.min_order_value   
+  AND c.min_order_value<=(select order_amount from order1 where order_id=2001)
   AND NOT EXISTS (
         SELECT 1
         FROM coupon_usage where  
         coupon_id=1
         AND user_id = 101
-  );
+  )
 
+  restaraunt specific validation
+
+  SELECT c.coupon_id
+FROM coupons c
+WHERE c.coupon_code = 'SAVE50'
+  AND c.is_active = 1
+  AND c.expiry_date > GETDATE()
+  AND 500 >= c.min_order_value
+  AND (
+        NOT EXISTS (SELECT 1 FROM coupon_restaurants cr WHERE cr.coupon_id = c.coupon_id)
+        OR EXISTS (
+            SELECT 1
+            FROM coupon_restaurants cr
+            WHERE cr.coupon_id = c.coupon_id
+              AND cr.restaurant_id = 22
+        )
+      );
 
 
 
